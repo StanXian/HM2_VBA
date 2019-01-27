@@ -1,0 +1,187 @@
+Sub easy()
+
+    'Loop through all sheets
+    Dim ws As Worksheet
+    For Each ws In Worksheets
+
+        'define variables
+            Dim op_price, cl_price, yc As Double
+            Dim ticker As String
+            Dim vol_total As Double
+            Dim pc As Double
+            vol_total = 0
+            op_price = Cells(2, 3).Value
+            cl_price = 0
+            yc = 0
+            pc = 0
+            
+            
+        'Keep track of the location for each tickers in the summary table
+            Dim summary_table_row As Integer
+            summary_table_row = 2
+        
+        'Print title for summary table
+            Cells(1, 9).Value = "Tiker"
+            Cells(1, 10).Value = "Total Stock Volume"
+            Cells(1, 11).Value = "Yearly Change"
+            Cells(1, 12).Value = "Percent Change"
+            
+            
+        'Loop
+        For i = 2 To 71226
+        
+            'Check if the tickers keeps same, if not...
+            If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+                
+                'Set the ticker name
+                ticker = Cells(i, 1).Value
+                
+                'Add to total vol
+                vol_total = vol_total + Cells(i, 7).Value
+                
+                'Print name
+                Range("I" & summary_table_row).Value = ticker
+                
+                'Print Volume
+                Range("J" & summary_table_row).Value = vol_total
+                
+                
+                
+                'Set close price
+                cl_price = Cells(i, 6).Value
+                
+                'Calculate yc
+                yc = cl_price - op_price
+                
+                'Print yc
+                Range("K" & summary_table_row).Value = yc
+                
+                'Color yc
+                Set testcell = Range("K" & summary_table_row)
+                Select Case testcell
+                    Case Is > 0
+                        With testcell
+                            .Interior.ColorIndex = 4
+                        End With
+                    Case Is < 0
+                        With testcell
+                            .Interior.ColorIndex = 3
+                        End With
+                End Select
+                
+                
+                'Calculate pc
+                If yc = 0 Then
+                    pc = 0
+                Else
+                    pc = yc / op_price
+                End If
+                
+                
+                'Print pc
+                Set r1 = Range("L" & summary_table_row)
+                Range("L" & summary_table_row).Value = pc
+                r1.NumberFormat = "00.00%"
+                
+                
+                
+                
+                'Next row
+                summary_table_row = summary_table_row + 1
+                
+                'Reset vol total
+                vol_total = 0
+                
+                'Reset cl op yc
+                op_price = Cells(i + 1, 3).Value
+                cl_price = 0
+                yc = 0
+                pc = 0
+                
+                
+                
+            'Same tiker
+            Else
+            
+                'Add vol total
+                vol_total = vol_total + Cells(i, 7).Value
+                
+            End If
+        
+        Next i
+        
+        
+        ws.Activate
+        
+    Next ws
+    
+    
+    'Hard part
+    'New variables
+    Dim ticker_gi, ticker_gd, ticker_gtv As String
+    Dim value_gi, value_gd, value_gtv As Double
+    value_gi = 0
+    value_gd = 0
+    value_gtv = 0
+    
+    'Second round Loop
+    Dim xx As Worksheet
+    For Each xx In Worksheets
+    
+        'Find Extrme value
+       
+        
+        'Find Extrme value and tickers
+        For j = 2 To 71226
+        
+            'Find value gi
+            If Cells(j, 12).Value > value_gi Then
+                value_gi = Cells(j, 12).Value
+                
+                'Find ticker gi
+                ticker_gi = Cells(j, 1).Value
+                
+            'Find value gd
+            ElseIf Cells(j, 12).Value < value_gd Then
+                value_gd = Cells(j, 12).Value
+                
+                'Find ticker gd
+                ticker_gd = Cells(j, 1).Value
+                
+            'Find value gtv
+            ElseIf Cells(j, "J").Value > value_gtv Then
+                value_gtv = Cells(j, "J").Value
+                
+                'Find ticker gtv
+                ticker_gtv = Cells(j, 1).Value
+                
+            End If
+        
+            
+        Next j
+    
+    
+     xx.Activate
+        
+    Next xx
+    
+    'Print summary box 2
+    Sheets("2016").Cells(1, "P") = "Ticker"
+    Sheets("2016").Cells(1, "Q") = "Value"
+    Sheets("2016").Cells(2, "O") = "Greatest % Increase"
+    Sheets("2016").Cells(3, "O") = "Greatest % Decrease"
+    Sheets("2016").Cells(4, "O") = "Greatest Total Volume"
+    
+    'Print variables
+    Sheets("2016").Cells(2, "P") = ticker_gi
+    Sheets("2016").Cells(3, "P") = ticker_gd
+    Sheets("2016").Cells(4, "P") = ticker_gtv
+    Sheets("2016").Cells(2, "Q") = value_gi
+    Sheets("2016").Cells(3, "Q") = value_gd
+    Sheets("2016").Cells(4, "Q") = value_gtv
+    Set r2 = Sheets("2016").Range("Q2", ["Q3"])
+                r2.NumberFormat = "00.00%"
+    
+    
+    
+End Sub
